@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "title": "Produto Teste",
+    "description": "Descrição do Produto Teste",
+    "code": "TEST123",
+    "price": 99.99,
+    "status": true,
+    "stock": 10,
+    "category": "testes",
+    "thumbnails": []
+  },
+  {
+    "id": 2,
+    "title": "Produto Teste2",
+    "description": "Descrição do Produto Teste",
+    "code": "TEST163",
+    "price": 99.99,
+    "status": true,
+    "stock": 10,
+    "category": "testes",
+    "thumbnails": []
+  }
+]
