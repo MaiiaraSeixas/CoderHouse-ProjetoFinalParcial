@@ -58,3 +58,47 @@ export const deleteUser = async (req, res) => {
     res.sendError('Erro ao deletar usuário', 500);
   }
 };
+
+export const uploadDocuments = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.sendError('Nenhum arquivo foi enviado', 400);
+    }
+
+    const updatedUser = await userService.updateUserDocuments(uid, files);
+
+    res.sendSuccess({
+      message: 'Documentos enviados com sucesso!',
+      user: updatedUser
+    });
+
+  } catch (error) {
+    req.logger.error(`Erro ao fazer upload de documentos: ${error.message}`);
+    res.sendError('Erro ao fazer upload de documentos', 500);
+  }
+};
+
+export const changeUserRole = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await userService.changeRole(uid);
+    res.sendSuccess({
+      message: `User role successfully updated to ${user.role}.`,
+      user
+    });
+  } catch (error) {
+    req.logger.error(`Failed to change user role for UID ${req.params.uid}: ${error.message}`);
+
+    if (error.message.includes('document')) {
+      return res.sendError(error.message, 400); // Bad request if docs are missing
+    }
+    if (error.message.includes('not found')) {
+      return res.sendError(error.message, 404); // Not found
+    }
+
+    res.sendError('An internal error occurred while changing the user role.', 500);
+  }
+};

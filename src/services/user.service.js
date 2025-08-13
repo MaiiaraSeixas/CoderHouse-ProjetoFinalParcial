@@ -43,8 +43,47 @@ class UserService {
 
   async changeRole(uid) {
     const user = await UserModel.findById(uid);
-    if (!user) return null;
-    user.role = user.role === 'user' ? 'premium' : 'user';
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.role === 'admin') {
+      return user; // Admins cannot change their own role
+    }
+
+    // Logic to upgrade to premium
+    if (user.role === 'user') {
+      // The user only specified "Identificacion" as the required document.
+      const hasIdentification = user.documents.some(doc => doc.name.toLowerCase().includes('identificacao'));
+
+      if (!hasIdentification) {
+        throw new Error('User has not uploaded the required "Identification" document to become premium.');
+      }
+      user.role = 'premium';
+    } else if (user.role === 'premium') {
+      user.role = 'user'; // Optional: allow downgrading
+    }
+
+    await user.save();
+    return user;
+  }
+
+  async updateUserDocuments(uid, files) {
+    if (!files || files.length === 0) {
+      throw new Error('No files provided for upload.');
+    }
+
+    const user = await UserModel.findById(uid);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const newDocuments = files.map(file => ({
+      name: file.originalname,
+      reference: file.path
+    }));
+
+    user.documents.push(...newDocuments);
     await user.save();
     return user;
   }

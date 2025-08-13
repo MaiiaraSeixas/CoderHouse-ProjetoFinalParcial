@@ -2,7 +2,8 @@ import { Router } from 'express';
 import passport from 'passport';
 import { generateToken } from '../utils/jwt.js';
 import CartModel from '../models/cart.model.js';
-import UserDTO from '../dtos/userDTO.js';
+import UserModel from '../models/user.model.js'; // Import UserModel
+import UserDTO from '../dtos/UserDTO.js';
 
 const router = Router();
 
@@ -35,6 +36,10 @@ function handleLogin(req, res, next, isApi = false) {
     }
 
     try {
+      // Atualiza a última conexão do usuário
+      user.last_connection = new Date();
+      await user.save();
+
       const tokenPayload = {
         _id: user._id,
         email: user.email,
@@ -77,6 +82,8 @@ function handleLogin(req, res, next, isApi = false) {
     }
   })(req, res, next);
 }
+
+// ... (o resto do arquivo permanece o mesmo) ...
 
 // ----------------------
 // Registro via Formulário
@@ -187,7 +194,7 @@ router.get(
       cartId: req.user.cartId, // Este é o campo mais importante
       role: req.user.role
     };
-    
+
     // Geramos o token com este payload limpo.
     const token = generateToken(userPayload);
 

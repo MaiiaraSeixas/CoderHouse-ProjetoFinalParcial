@@ -19,8 +19,15 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'], // Valores permitidos
+    enum: ['user', 'admin', 'premium'], // Valores permitidos
     default: 'user'          // Valor padrão se não especificado
+  },
+  documents: [{
+    name: { type: String },
+    reference: { type: String }
+  }],
+  last_connection: {
+    type: Date
   },
   githubId: {
     type: String    // ID único do GitHub para autenticação social

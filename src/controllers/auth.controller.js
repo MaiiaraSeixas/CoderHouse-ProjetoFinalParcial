@@ -64,7 +64,7 @@ export const loginUser = async (req, res) => {
         _id: user._id,
         email: user.email,
         role: user.role,
-        cartId: user.cartId 
+        cartId: user.cartId
       }
     });
 

@@ -1,0 +1,99 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: "ID gerado pelo MongoDB para o usuário."
+        first_name:
+          type: string
+          description: "Primeiro nome do usuário."
+        last_name:
+          type: string
+          description: "Sobrenome do usuário."
+        email:
+          type: string
+          description: "E-mail único do usuário."
+        role:
+          type: string
+          enum: ['user', 'admin', 'premium']
+          description: "Role do usuário."
+        documents:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              reference:
+                type: string
+          description: "Array de documentos enviados pelo usuário."
+        last_connection:
+          type: string
+          format: date-time
+          description: "Data da última conexão do usuário."
+
+paths:
+  /api/users/{uid}/documents:
+    post:
+      summary: "Faz upload de um ou mais documentos para um usuário"
+      tags:
+        - "Users"
+      parameters:
+        - name: "uid"
+          in: "path"
+          required: true
+          description: "ID do usuário para o qual fazer o upload dos documentos."
+          schema:
+            type: "string"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                document:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "binary"
+                  description: "Arquivos para upload. O nome do campo deve ser 'document'."
+      responses:
+        '200':
+          description: "Documentos enviados com sucesso."
+        '400':
+          description: "Nenhum arquivo foi enviado."
+        '401':
+          description: "Não autorizado."
+        '500':
+          description: "Erro interno do servidor."
+
+  /api/users/premium/{uid}:
+    put:
+      summary: "Alterna o role de um usuário (user/premium)"
+      tags:
+        - "Users"
+      parameters:
+        - name: "uid"
+          in: "path"
+          required: true
+          description: "ID do usuário cujo role será alterado."
+          schema:
+            type: "string"
+      responses:
+        '200':
+          description: "Role do usuário atualizado com sucesso."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: "Requisição inválida. Ex: documentos necessários ausentes."
+        '401':
+          description: "Não autorizado (apenas Admins podem executar esta ação)."
+        '404':
+          description: "Usuário não encontrado."
+        '500':
+          description: "Erro interno do servidor."
